@@ -1,0 +1,35 @@
+on:
+  push:
+    branches:
+      - 'master' 
+
+name: Create Release
+
+jobs:
+  build:
+    permissions: write-all
+    name: Create Release
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
+    steps:
+      - name: Checkout master Branch
+        uses: actions/checkout@v2
+        with:
+          ref: 'master'
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.event.repository.updated_at }}
+          release_name: ${{ github.event.repository.updated_at }}
+          draft: true
+          prerelease: false
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm i
